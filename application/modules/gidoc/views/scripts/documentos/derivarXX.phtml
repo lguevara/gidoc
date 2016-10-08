@@ -1,0 +1,39 @@
+<table id="listDerivar" ></table>
+
+<script type="text/javascript">
+
+    jQuery("#listDerivar").jqGrid({
+            datatype: "local",
+            colNames:[<?php echo $this->colNames ?>],
+            colModel:[
+                    <?php echo $this->colModel ?>
+            ],
+            rowNum:25,
+            height:"300",
+            width: 400,
+            sortname: '<? echo $this->sortName ?>',
+        sortorder: "desc",
+        loadError : function(xhr,st,err) {
+            jQuery("#rsperror").html("Type: "+st+"; Response: "+ xhr.status + " "+xhr.statusText+"; Error: "+err);
+        }
+    });
+
+
+</script>
+<script type="text/javascript">
+    /*
+     * Entorno de configuración para el grid
+     **/
+
+     /* Oculto campos */
+     jQuery("#listDerivar").jqGrid('hideCol',[<?php echo $this->hideCol ?>]); /* Para ocultar columnas, pueden agregarse estas separadas por comas */
+
+
+    $(function() {
+
+        /* Agrego en la barra inferior solo el botón Recargar */
+        jQuery("#listDerivar").jqGrid('navGrid','#pager',{edit:false,add:false,del:false,search:false});
+
+    });
+
+</script>

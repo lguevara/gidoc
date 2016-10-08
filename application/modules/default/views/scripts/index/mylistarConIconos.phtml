@@ -1,0 +1,193 @@
+<div class="titulo"><?php echo $this->titulo ?></div>
+<div class="subtitulo">Búsquedas</div>
+<hr noshade="" class="linha">
+<div id="divBotonera">
+    <a href='#' id='btnNew' >Nuevo</a>
+    <a href='#' id='btnDel' >Eliminar</a>
+</div>
+<div id="divBuscar">
+<? /* Botón Buscar para el jqgrid */ ?>
+    <span style="font-size: 12px;">Descripción&nbsp;&nbsp;</span><input type="text" id="txtBusqueda" value="" size="40" />
+<a id="myButtonBuscar" onclick="gridReload()" href="#" >Buscar</a>
+</div>
+<table id="list" ></table>
+<div id="pager" ></div>
+
+<?php echo $this->headLink()->appendStylesheet($this->baseUrl."/js/jquery/jqgrid/css/ui.jqgrid.css")."\n"; ?>
+<?php $this->headScript()->appendFile($this->baseUrl.'/js/jquery/jqgrid/js/i18n/grid.locale-es.js'); ?>
+<?php echo $this->headScript()->appendFile($this->baseUrl.'/js/jquery/jqgrid/js/jquery.jqGrid.min.js'); ?>
+
+<script type="text/javascript">
+
+    jQuery("#list").jqGrid({
+            url:'<?php echo $this->baseUrlController ?>/listar/',
+            datatype: "json",
+            colNames:[<?php echo $this->colNames ?>],
+            colModel:[
+                    <?php echo $this->colModel ?>
+            ],
+            rowNum:25,
+            height:"560",
+            autowidth: true,
+            pager: '#pager',
+            sortname: '<? echo $this->sortName ?>',
+        viewrecords: true,
+        multiselect: true, /* Permito que se seleccionen varios registros */
+        sortorder: "desc",
+        caption:" Lista de <?php echo $this->titulo ?>",
+        loadError : function(xhr,st,err) {
+            jQuery("#rsperror").html("Type: "+st+"; Response: "+ xhr.status + " "+xhr.statusText+"; Error: "+err);
+        }
+    });
+
+</script>
+<script type="text/javascript">
+    /*
+     * Entorno de configuración para el grid
+     **/
+
+     /* Oculto campos */
+     jQuery("#list").jqGrid('hideCol',[<?php echo $this->hideCol ?>]); /* Para ocultar columnas, pueden agregarse estas separadas por comas */
+
+    /* Agrego estilo a los botones */
+    $("#myButtonBuscar").button({
+        icons: {
+        primary: 'ui-icon-search'
+        }
+    })
+
+    $("#btnNew").button({
+        icons: {
+        primary: 'ui-icon-document'
+        }
+    })
+
+/*
+    $("#btnEdt").button({
+        icons: {
+        primary: 'ui-icon-pencil'
+        }
+    })
+*/
+
+    $("#btnDel").button({
+        icons: {
+        primary: 'ui-icon-trash'
+        }
+    })
+
+    /* Función que recarga el grid.  Es llamada desde el botón Buscar */
+    function gridReload(){
+        var txtBuscar = jQuery("#txtBusqueda").val();
+        jQuery("#list").jqGrid('setGridParam',{url:'<?php echo $this->baseUrlController ?>/listar/txtBuscar/'+txtBuscar,page:1}).trigger("reloadGrid");
+    }
+
+    function editaDesdeLink(id){
+        /* Asigno nuevo Título a la ventana que se abrirá */
+        $("#wndEdicion").dialog("option", "title", '<?php echo $this->titulo ?> [Edición]');
+
+        /* Cargo en el div la página que deseo */
+        $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/editar/id/'+id);
+
+        /* Abro la ventana */
+        setTimeout(function(){ $("#wndEdicion").dialog('open') }, 100);
+    }
+
+    $(function() {
+
+        /* Focus en Búsqueda */
+        $("#txtBusqueda").focus();
+
+        /* Para activar búsquedas con tecla enter */
+        $("#txtBusqueda").keypress(function(e){
+            if (e.which == 13) { /* Si ha presionado la tecla enter */
+                gridReload();
+            }
+        });
+
+        /* Agrego en la barra inferior solo el botón Recargar */
+        jQuery("#list").jqGrid('navGrid','#pager',{edit:false,add:false,del:false,search:false});
+
+        /* Configuro la ventana de Edición */
+        $("#wndEdicion").dialog({
+                title: "Edición",
+                modal: true,
+                autoOpen: false,
+                width: <? echo $this->widthDialog; ?>,
+                height: 'auto',
+                zIndex: 999999,
+                buttons: {
+                    Cerrar: function() {
+			$(this).dialog('close');
+                    }
+		}
+         });
+
+        /* Asgino métodos a los botones */
+        /* Botón Nuevo */
+        // Para llamar al formulario en una página normal sin ventana Dialog.
+        // en el action 'agregar' debe colocarse comentario a la línea $this->_helper->layout->disableLayout();
+	// $("#btnNew").click(function() {
+        //    document.location = '<?php // echo $this->baseUrlController ?>/agregar/';
+        // });
+
+        /* Botón Nuevo */
+	$("#btnNew").click(function() {
+//            document.location = '<?php // echo $this->baseUrlController ?>/agregar/';
+            /* Asigno nuevo Título a la ventana que se abrirá */
+            $("#wndEdicion").dialog("option", "title", '<?php echo $this->titulo ?> [Nuevo]');
+
+            /* Cargo en el div la página que deseo */
+            $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/agregar/');
+
+            /* Abro la ventana */
+            setTimeout(function(){ $("#wndEdicion").dialog('open') }, 100);
+
+        });
+
+        /* Botón Editar */
+	$("#btnEdt").click(function() {
+            var id = jQuery("#list").jqGrid('getGridParam','selrow');
+            if( id != null ) {
+                 /* Asigno nuevo Título a la ventana que se abrirá */
+                $("#wndEdicion").dialog("option", "title", '<?php echo $this->titulo ?> [Editar]');
+
+                /* Cargo en el div la página que deseo */
+                $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/editar/id/'+id);
+
+                /* Abro la ventana */
+                setTimeout(function(){ $("#wndEdicion").dialog('open') }, 100);
+            } else {
+                MyAlert("Seleccione el registro a Editar!");
+            }
+
+        });
+
+
+
+        /* Botón Eliminar */
+        $("#btnDel").click(function(){
+                var arrSelected = jQuery("#list").jqGrid('getGridParam','selarrrow'); /* Devuelve array con los id de todos los registros seleccionados */
+                if( arrSelected.length > 0 ) {
+                    jQuery("#list").jqGrid('delGridRow',arrSelected,{reloadAfterSubmit:false, url:'<?php echo $this->baseUrlController ?>/eliminar/', width: 400, height: 120,
+                                        closeOnEscape:true,
+                                        afterSubmit:function(data_from_server){  /* Función que se ejecuta "después de hacer el submir".  Recibe datos desde el server */
+                                                var result=data_from_server.responseText.split("|");
+                                                if (result[0] == "error"){
+                                                    return [false,result[1]] /* No elimina el registro del grid y muestra un mensaje */
+                                                } else {
+                                                    return [true,result[1]]; /* Si elimina el regisro del grid y muestra un mensaje */
+                                                }
+                                        }
+                    }); /* Elimina todos los registros seleccionados */
+
+                } else {
+                    MyAlert("Seleccione el(los) registro(s) a eliminar!");
+                }
+        });
+
+
+    });
+
+</script>
+<div id="wndEdicion"></div>

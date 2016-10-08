@@ -1,0 +1,133 @@
+<?php echo $this->doctype() ?>
+<html>
+    <head>
+        <?php echo $this->headTitle() ?>
+        <?php echo $this->headMeta() ?>
+        <meta name="viewport" content="width=device-width, initial-scale=1">        
+        <?php echo $this->headLink() ?>
+
+        <?php
+        /* Imprimo la carga de librerías Jquery */
+        /* Aplico estilos juqeryui al menú */
+        echo $this->jQuery()->addOnLoad("
+
+            ");
+        ?>
+
+<? echo $this->headScript();  /* Imprimo el HeadScript */ ?>
+    </head>
+    <body>
+            <?php if ($this->layout()->usuario !== null): ?>
+
+                <div id="divMenu" class="ui-corner-all">
+                    <div id="headMenu" class="ui-corner-all ui-widget-header">
+                        <div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix ui-draggable-handle">
+                            <button type="button" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close"><span class="ui-button-icon ui-icon ui-icon-closethick"></span>
+                                <span class="ui-button-icon-space"> </span>
+                                Close
+                            </button>
+                        </div>                        
+                    </div>
+                    
+                    <?php
+    //                $documentos = $this->navigation()->findOneByLabel('Documentos');
+    //                echo $this->navigation()
+    //                          ->menu()
+    //                          ->renderMenu($documentos);
+
+                    /* Obtengo todo el menú de opciones */
+                    $documentos = $this->navigation()->findOneByLabel('Documentos');
+
+                    /* Obtengo el acl y rol */
+                    $acl = Zend_Registry::get('acl');
+                    $rol = $this->layout()->usuario->rol;
+                    ?>                
+
+                    <?php foreach ($documentos as $page): ?>
+                        <?php if ($acl->isAllowed($rol, $page->resource)): ?>
+                            <div class="menu-item">
+                                <a id="menu-<?php echo $page->id; ?>" class="item-menu" title="<?php echo $page->title; ?>" href="<?php echo $page->href; ?>">
+                                    <img src="/css/images/<?php echo $page->image; ?>"/>
+                                    <?php echo $page->label; ?>
+                                </a>                    
+                            </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>                
+
+                </div>
+
+            <?php endif; ?>
+        
+        <div id="header" class="ui-widget-header">
+            <div id="divLeft" class="item-header ui-widget-header">
+                <?php if ($this->layout()->usuario !== null): ?>
+                    <div id="divBtnMenu">
+                        <a href='#' id='btnMenu' >Menú<br>
+                    <img src="/css/images/menu-icono.png"/>                                            
+                    </a>                
+                    </div>
+                <?php endif; ?>                
+                <div id="divNombreSistema">
+                    <?php if ($this->layout()->usuario !== null): ?>
+                    <img src="/css/images/logo.png" width="50vw" height="50vh"/>
+                    <?php endif; ?>
+                    
+                    <?php echo $this->layout()->nombresistema; ?>
+                </div>
+            </div>            
+            <?php if ($this->layout()->usuario !== null): ?>            
+                <div id="divVerTramite" class="item-header ui-widget-header">
+                    <input class="" type="text" placeholder="Registro" name="txtDocumentoId" id="txtDocumentoId" size="5"/>
+                    <a href='#' id='btnVerTramite' >Ver Trámite</a>
+                </div>    
+            <?php endif; ?>                            
+            <div id="divPuerta" class="item-header ui-widget-header">
+
+                <?php if ($this->layout()->usuario !== null): ?>
+
+                    <?php if ($this->layout()->usuario->jefe_de !== null): /* Si es jefe de alguna oficina */ ?>
+                        <a href="<?php echo $this->baseUrl; ?>/gidoc/documentos/porfirmar">Documentos por firmar</a>                    
+                    <?php endif; ?>
+
+                    [ <?php
+                    /* Obtengo el campo login de la tabla de autenticacion */
+                    $appConfig     = Zend_Registry::get('appConfig');
+                    $identiUsuario = $appConfig->auth->IdentityColumn;
+
+                    echo $this->layout()->usuario->$identiUsuario . ' | ' . $this->layout()->usuario->oficina;
+                    ?> ]
+                    <a href="<?php echo $this->baseUrl; ?>/login/logout">Cerrar sesión</a>
+
+                <?php else: ?>
+
+                    <?php if (!$this->layout()->noLinkIngresaAlSistema): ?>
+                        <a href="<?php echo $this->baseUrl; ?>/login/" >Ingresar al Sistema</a>
+                    <?php endif; ?>
+
+                <?php endif; ?>
+
+            </div>
+
+        </div>
+
+        <div id="content" >
+            <div id="msgFlash" style="width:470px; margin:0 auto; position: relative; z-index: 1000" >
+                <?php
+                /* Lo he colocado dentro del div msgFlash solo para que el mensaje se muestre centrado.  
+                 * El width real para que se muestre exactamente centrado debe ser: 270px.  Pero he colocado
+                 * 470px. para que alcanze cuando el mensaje es más largo.
+                 *  */
+                echo $this->flashMessenger(); /* Para mostrar mensajes al usuario */
+                ?>
+            </div>
+            <?php
+            echo $this->layout()->content;
+            ?>
+        </div>
+        <div id="wndDialogo" ></div>
+        <div id="wndContent"></div>        
+        <iframe align="top" width="100%" height="100%" style="visibility: hidden" frameborder="1" name="controle" id="controle">
+        </iframe>        
+
+    </body>
+</html>

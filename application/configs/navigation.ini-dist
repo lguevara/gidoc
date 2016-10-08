@@ -1,0 +1,46 @@
+[production]
+[development : production]
+
+; —
+; Navigation
+; —
+
+resources.navigation.pages.administracion.id = administracion
+resources.navigation.pages.administracion.label = Administración
+resources.navigation.pages.administracion.title = Administración
+resources.navigation.pages.administracion.module = gidoc
+resources.navigation.pages.administracion.controller = index
+resources.navigation.pages.administracion.action = index
+resources.navigation.pages.administracion.resource = administracion
+
+resources.navigation.pages.administracion.pages.usuarios.id = usuarios
+resources.navigation.pages.administracion.pages.usuarios.label = Usuarios
+resources.navigation.pages.administracion.pages.usuarios.title = Usuarios del Sistema
+resources.navigation.pages.administracion.pages.usuarios.module = usuarios
+resources.navigation.pages.administracion.pages.usuarios.controller = usuarios
+resources.navigation.pages.administracion.pages.usuarios.action = index
+resources.navigation.pages.administracion.pages.usuarios.resource = usuarios
+
+resources.navigation.pages.administracion.pages.roles.id = roles
+resources.navigation.pages.administracion.pages.roles.label = Roles
+resources.navigation.pages.administracion.pages.roles.title = Roles del Sistema
+resources.navigation.pages.administracion.pages.roles.module = usuarios
+resources.navigation.pages.administracion.pages.roles.controller = roles
+resources.navigation.pages.administracion.pages.roles.action = index
+resources.navigation.pages.administracion.pages.roles.resource = roles
+
+resources.navigation.pages.administracion.pages.configuracion.id = empresas
+resources.navigation.pages.administracion.pages.configuracion.label = Configuración
+resources.navigation.pages.administracion.pages.configuracion.title = Configuración del Sistema
+resources.navigation.pages.administracion.pages.configuracion.module = default
+resources.navigation.pages.administracion.pages.configuracion.controller = empresas
+resources.navigation.pages.administracion.pages.configuracion.action = editar
+resources.navigation.pages.administracion.pages.configuracion.resource = empresas
+
+resources.navigation.pages.clientes.id = clientes
+resources.navigation.pages.clientes.label = Clientes
+resources.navigation.pages.clientes.title = Clientes
+resources.navigation.pages.clientes.module = default
+resources.navigation.pages.clientes.controller = enproceso
+resources.navigation.pages.clientes.action = index
+resources.navigation.pages.clientes.resource = clientes

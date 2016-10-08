@@ -1,0 +1,40 @@
+<?php echo $this->doctype() ?>
+<html>
+    <head>
+        <?php echo $this->headTitle() ?>
+        <?php echo $this->headMeta() ?>
+        <?php echo $this->headLink() ?>
+        
+        <?php 
+        /* Imprimo la carga de librerías Jquery */
+        /* Aplico estilos juqeryui al menú */
+        echo $this->jQuery()->addOnLoad("
+                
+                $('.navigation li').addClass('ui-state-default ui-corner-top');
+                $('.active').addClass('ui-tabs-selected ui-state-active');
+
+            "); ?>
+        
+        <? echo $this->headScript();  /* Imprimo el HeadScript */ ?>
+
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="contentlimpio" >
+                <div id="msgFlash" style="width:470px; margin:0 auto; position: relative; z-index: 1000" >
+                <?php
+                    /* Lo he colocado dentro del div msgFlash solo para que el mensaje se muestre centrado.  
+                     * El width real para que se muestre exactamente centrado debe ser: 270px.  Pero he colocado
+                     * 470px. para que alcanze cuando el mensaje es más largo.
+                     *  */
+                    echo $this->flashMessenger() ; /* Para mostrar mensajes al usuario */
+                ?>
+                </div>
+                <?php
+                    echo $this->layout()->content;
+                ?>
+            </div>
+        </div>
+        <div id="wndDialogo" ></div>
+    </body>
+</html>

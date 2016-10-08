@@ -1,0 +1,652 @@
+<?php $this->jQuery()
+           ->addJavascriptFile($this->baseUrl.'/js/jquery/jqgrid/js/i18n/grid.locale-es.js') 
+           ->addJavascriptFile($this->baseUrl.'/js/jquery/jqgrid/js/jquery.jqGrid.min.js')
+           ->addStylesheet($this->baseUrl."/js/jquery/jqgrid/css/ui.jqgrid.css") ; ?>
+
+<style>
+    .derivado {background: lightyellow }
+    #etiquetas{
+        float: left;
+        width: 100px;
+        font-weight: bold;
+        text-align: right;
+    }
+</style>
+
+<div class="titulo"><?php echo $this->titulo ?></div>
+<div id="divLista">
+    <div id="divBotonera">
+        <a href='#' id='btnNewExterno' >Nuevo Doc.Externo</a>
+        <a href='#' id='btnNewInterno' >Nuevo Doc.Personal</a>
+        <a href='#' id='btnNewJefatura' >Nuevo Doc.de Jefatura</a>        
+        
+        <a href='#' id='btnDerivar' >Derivar</a>        
+        <a href='#' id='btnEliminarDerivacion' >Eliminar Derivación</a>        
+
+        <a href='#' id='btnAdjuntar' >Adjuntar</a>        
+        <a href='#' id='btnArchivar' >Archivar</a>
+        
+    </div>
+    <div id="divBuscar">
+    <? /* Botón Buscar para el jqgrid */ ?>
+    <input type="text" placeholder='Digite texto a buscar' id="txtBusqueda" value="" size="10" />
+        <a id="myButtonBuscar" onclick="gridReload()" href="#" >Buscar</a>
+        <input type="checkbox" id="checkTodalaOficina" value="" />Toda la Oficina  
+            <?php echo $this->formOficinas->dependencia_busca_id; 
+            ?>
+    
+    </div>
+
+    <table id="list" ></table>
+    <div id="pager" ></div>
+</div>
+<script type="text/javascript">
+
+    jQuery("#list").jqGrid({
+            url:'<?php echo $this->baseUrlController ?>/listar/',
+            datatype: "json",
+            colNames:[<?php echo $this->colNames ?>],
+            colModel:[
+                    <?php echo $this->colModel ?>
+            ],
+            rowNum:25,
+            height:"400",
+            autowidth: true,
+            pager: '#pager',
+            sortname: '<? echo $this->sortName ?>',
+        viewrecords: true,
+        multiselect: true, /* Permito que se seleccionen varios registros */
+        sortorder: "desc",
+        gridview: false,                                                        
+        afterInsertRow:function (rowid,rowdata,rowelem){ /* Para aplicar un estilo a las filas según determinada condición */
+            switch (rowdata.tipomovimiento_id) {
+                    case 2:
+                        $("#"+rowid).addClass('derivado');
+                        break;
+            }
+        },
+        loadError : function(xhr,st,err) {
+            jQuery("#rsperror").html("Type: "+st+"; Response: "+ xhr.status + " "+xhr.statusText+"; Error: "+err);
+        }
+    });
+
+</script>
+<script type="text/javascript">
+/*    parent.menu.document.getElementById('procesando').innerHTML = ''    */
+    /*
+     * Entorno de configuración para el grid
+     **/
+
+     /* Oculto campos */
+     jQuery("#list").jqGrid('hideCol',[<?php echo $this->hideCol ?>]); /* Para ocultar columnas, pueden agregarse estas separadas por comas */
+
+    /* Agrego estilo a los botones */
+    $("#myButtonBuscar").button({
+        icons: {
+        primary: 'ui-icon-search'
+        }
+    })
+
+    $("#btnDerivar").button({
+        icons: {
+        primary: 'ui-icon-seek-next'
+        }
+    })
+
+    $("#btnAdjuntar").button({
+        icons: {
+        primary: 'ui-icon-caret-2-n-s'
+        }
+    })
+
+    $("#btnArchivar").button({
+        icons: {
+        primary: 'ui-icon-check'
+        }
+    })
+
+    $("#btnNewExterno").button({
+        icons: {
+        primary: 'ui-icon-document'
+        }
+    })
+
+    $("#btnNewInterno").button({
+        icons: {
+        primary: 'ui-icon-document'
+        }
+    })
+
+    $("#btnNewJefatura").button({
+        icons: {
+        primary: 'ui-icon-document'
+        }
+    })
+
+    $("#btnEliminarDerivacion").button({
+        icons: {
+        primary: 'ui-icon-trash'
+        }
+    })
+
+    $("#btnDel").button({
+    })
+
+    /* Función que recarga el grid.  Es llamada desde el botón Buscar */
+    function gridReload(){
+        var txtBuscar = jQuery("#txtBusqueda").val();
+        
+        var todaOficina = $('#checkTodalaOficina').is(':checked');
+        if(todaOficina){
+            todaOficina = 1;
+        } else {
+            todaOficina = 0;
+        }
+        
+        var dependencia_busca_id = $('#dependencia_busca_id').val();
+        
+        jQuery("#list").jqGrid('setGridParam',{url:'<?php echo $this->baseUrlController ?>/listar/txtBuscar/' + txtBuscar + '/todaOficina/' + todaOficina + '/dependencia_busca_id/' + dependencia_busca_id,page:1}).trigger("reloadGrid");
+        
+    }
+
+    function editaDesdeLink(id){
+        /* Verifico si es documento "Interno" o "Externo" */
+        rowdata = jQuery("#list").getRowData(id);
+        if(rowdata.origen == 1){  /* Interno */      
+            
+            if(rowdata.tipo == 1){  /* Personal */      
+                
+                document.location = '<?php echo $this->baseUrlController ?>/editarinterno/id/'+id;
+                
+            } else { /* 0: Jefatural */
+                
+//                if(rowdata.firma != ""){ /* Si el documento ya está firmado */
+//                    MyAlert("No es posible modificar un documento de jefatura que ya fué firmado");                    
+//                    return
+//                }
+                
+                document.location = '<?php echo $this->baseUrlController ?>/editarinterno/tipo/0/id/'+id;
+                
+            }
+            
+        } else {
+            document.location = '<?php echo $this->baseUrlController ?>/editar/id/'+id;
+        }
+        
+    }
+
+    function imprimeDocumento(id){
+        /* <? // Esta función ya no se usa, porque llamo al url directamente desde el grid ?> */
+        url = "<?php echo $this->urlReportes; ?>rptDocumento.php?id="+id;
+        $('#controle').attr('src', url);
+    }
+
+    function derivar(id){
+        /* Asigno nuevo Título a la ventana que se abrirá */
+        $("#wndEdicion").dialog("option", "title", 'Derivar');
+        $("#wndEdicion").dialog("option", "width", 600);        
+
+        /* Cargo en el div la página que deseo */
+        $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/derivar/padre_id/'+id);
+
+        /* Abro la ventana */
+        setTimeout(function(){ $("#wndEdicion").dialog('open') }, 100);
+    }
+
+
+    function firmar(documento_id) {
+        /* Asigno nuevo Título a la ventana que se abrirá */
+        $("#wndEdicion").dialog("option", "title", 'Firmar');
+        $("#wndEdicion").dialog("option", "width", 400);
+
+        /* Cargo en el div la página que deseo */
+        $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/firmar/documento_id/' + documento_id);
+
+        /* Abro la ventana */
+        setTimeout(function() {
+            $("#wndEdicion").dialog('open')
+        }, 100);
+    }
+
+    function deshacer_firma(documento_id){
+        jConfirm('¿ Está seguro de eliminar Firma de este Documento ?', 'Dialogo de Confirmación', function(ok) {
+            if(ok){
+                $.ajax({
+                        type: "POST",
+                        url: "<?php echo $this->baseUrlController ?>/deshacerfirma/documento_id/"+documento_id,
+                        success: function(datos){
+                            var result = datos.split("|");
+                            if (result[0] == "error"){
+                                MyAlert("ERROR: " + result[1])
+                                return false
+                            }
+                            gridReload()
+                        }
+                });
+            }
+        });
+    }
+
+    $(function() {
+
+        /* Focus en Búsqueda */
+        $("#txtBusqueda").focus();
+
+        /* Para activar búsquedas con tecla enter */
+        $("#txtBusqueda").keypress(function(e){
+            if (e.which == 13) { /* Si ha presionado la tecla enter */
+                gridReload();
+            }
+        });
+
+        /* Agrego en la barra inferior solo el botón Recargar */
+        jQuery("#list").jqGrid('navGrid','#pager',{edit:false,add:false,del:false,search:false});
+
+        /* Configuro la ventana de Edición */
+        $("#wndEdicion").dialog({
+                title: "Edición",
+                modal: true,
+                autoOpen: false,
+                width: <? echo $this->widthDialog; ?>,
+                height: 'auto',
+                buttons: {
+                    Cerrar: function() {
+			$(this).dialog('close');
+                    }
+		}
+         });
+
+        /* Asgino métodos a los botones */
+        
+	$("#btnEdt").click(function() {
+            var id = jQuery("#list").jqGrid('getGridParam','selrow');
+            if( id != null ) {
+
+                <?php if($this->editarSinDialog): ?>
+
+                    document.location = '<?php echo $this->baseUrlController ?>/agregar/';
+
+                <?php else: ?>
+
+                     /* Asigno nuevo Título a la ventana que se abrirá */
+                    $("#wndEdicion").dialog("option", "title", '<?php echo $this->titulo ?> [Editar]');
+
+                    /* Cargo en el div la página que deseo */
+                    $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/editar/id/'+id);
+
+                    /* Abro la ventana */
+                    setTimeout(function(){ $("#wndEdicion").dialog('open') }, 100);
+
+                <?php endif; ?>
+            } else {
+                MyAlert("Seleccione el registro a Editar!");
+            }
+
+        });
+
+        /* Botón Nuevo */
+	$("#btnNewExternoXX").click(function() {
+
+            <?php if($this->editarSinDialog): ?>
+
+                document.location = '<?php echo $this->baseUrlController ?>/agregar/';
+
+            <?php else: ?>
+
+                /* Asigno nuevo Título a la ventana que se abrirá */
+                $("#wndEdicion").dialog("option", "title", '<?php echo $this->titulo ?> [Nuevo]');
+
+                /* Cargo en el div la página que deseo */
+                $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/agregar/');
+
+                /* Abro la ventana */
+                setTimeout(function(){ $("#wndEdicion").dialog('open') }, 100);
+
+            <?php endif; ?>
+            
+        });
+
+        /* Botón Nuevo */
+	$("#btnNewInternoXXS").click(function() {
+
+            <?php if($this->editarSinDialog): ?>
+
+                document.location = '<?php echo $this->baseUrlController ?>/agregarinterno/';
+
+            <?php else: ?>
+
+                /* Asigno nuevo Título a la ventana que se abrirá */
+                $("#wndEdicion").dialog("option", "title", '<?php echo $this->titulo ?> [Nuevo]');
+
+                /* Cargo en el div la página que deseo */
+                $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/agregar/');
+
+                /* Abro la ventana */
+                setTimeout(function(){ $("#wndEdicion").dialog('open') }, 100);
+
+            <?php endif; ?>
+            
+        });
+
+	$("#btnNewJefaturaXX").click(function() {
+
+            <?php if($this->editarSinDialog): ?>
+
+                document.location = '<?php echo $this->baseUrlController ?>/agregarinterno/tipo/0';
+
+            <?php else: ?>
+
+                /* Asigno nuevo Título a la ventana que se abrirá */
+                $("#wndEdicion").dialog("option", "title", '<?php echo $this->titulo ?> [Nuevo]');
+
+                /* Cargo en el div la página que deseo */
+                $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/agregar/');
+
+                /* Abro la ventana */
+                setTimeout(function(){ $("#wndEdicion").dialog('open') }, 100);
+
+            <?php endif; ?>
+            
+        });
+
+
+        /* Botón Eliminar */
+        $("#btnDerivarXX").click(function(){
+            derivar(2)
+        });
+
+
+	$("#btnArchivar").click(function() {
+            var arrSelected = jQuery("#list").jqGrid('getGridParam','selarrrow'); /* Devuelve array con los id de todos los registros seleccionados */ 
+            
+            if( arrSelected.length > 0 ) {
+                    /* Recorro el array para asegurarme que no se intente archivar un registro que se encuentra derivado */
+                    for(i=0;i<arrSelected.length;i++)
+                    {
+                        rowdata = jQuery("#list").getRowData(arrSelected[i]);
+                        if(rowdata.tipomovimiento_id == 2){
+                            MyAlert("No puede archivar un registro que está derivado..!");
+                            return;
+                        }
+                    }            
+                
+                     /* Asigno nuevo Título a la ventana que se abrirá */
+                    $("#wndEdicion").dialog("option", "title", '<?php echo $this->titulo ?> [Archivar]');
+
+                    /* Cargo en el div la página que deseo */
+                    $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/archivar/id/'+arrSelected);
+
+                    /* Abro la ventana */
+                    setTimeout(function(){ $("#wndEdicion").dialog('open') }, 100);
+
+            } else {
+                MyAlert("Seleccione el(los) registro(s) a Archivar!");
+            }
+
+        });
+
+
+        $("#btnAdjuntar").click(function() {
+            var arrSelected = jQuery("#list").jqGrid('getGridParam', 'selarrrow'); /* Devuelve array con los id de todos los registros seleccionados */
+
+            if (arrSelected.length > 0) {
+                /* Recorro el array para asegurarme que no se intente archivar un registro que se encuentra derivado */
+                for (i = 0; i < arrSelected.length; i++)
+                {
+                    rowdata = jQuery("#list").getRowData(arrSelected[i]);
+                    if (rowdata.tipomovimiento_id == 2) {
+                        MyAlert("No puede adjuntar un registro que está derivado..!");
+                        return;
+                    }
+                }
+
+                /* Asigno nuevo Título a la ventana que se abrirá */
+                $("#wndEdicion").dialog("option", "title", '<?php echo $this->titulo ?> [Archivar]');
+
+                /* Cargo en el div la página que deseo */
+                $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/adjuntar/id/' + arrSelected);
+
+                /* Abro la ventana */
+                setTimeout(function() {
+                    $("#wndEdicion").dialog('open')
+                }, 100);
+
+            } else {
+                MyAlert("Seleccione el(los) registro(s) a Adjuntar!");
+            }
+
+        });
+
+
+	$("#btnDerivar").click(function() {
+            var arrSelected = jQuery("#list").jqGrid('getGridParam','selarrrow'); /* Devuelve array con los id de todos los registros seleccionados */ 
+            if( arrSelected.length > 0 ) {
+                
+                    /* Me aseguro que no se haya seleccionado registros que aún no están firmados */
+                    for(i=0;i<arrSelected.length;i++)
+                    {
+                        rowdata = jQuery("#list").getRowData(arrSelected[i]);
+                        if(rowdata.firma == ''){
+                            MyAlert("No es posible derivar documentos que aún no se han firmado..!");
+                            return;
+                        }
+                    }            
+                
+                     /* Asigno nuevo Título a la ventana que se abrirá */
+                    $("#wndEdicion").dialog("option", "title", '<?php echo $this->titulo ?> [Derivar]');
+
+                    /* Cargo en el div la página que deseo */
+                    $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/derivar/id/'+arrSelected);
+
+                    /* Abro la ventana */
+                    setTimeout(function(){ $("#wndEdicion").dialog('open') }, 100);
+
+            } else {
+                MyAlert("Seleccione el(los) registro(s) a Derivar!");
+            }
+
+        });
+
+        /* Botón Eliminar */
+        $("#btnEliminarDerivacion").click(function(){
+                var arrSelected = jQuery("#list").jqGrid('getGridParam','selarrrow'); /* Devuelve array con los id de todos los registros seleccionados */
+                if( arrSelected.length > 0 ) {
+                    
+                    /* Me aseguro que no se haya seleccionado registros que no están derivados */
+                    for(i=0;i<arrSelected.length;i++)
+                    {
+                        rowdata = jQuery("#list").getRowData(arrSelected[i]);
+                        if(rowdata.tipomovimiento_id != 2){
+                            MyAlert("Debe seleccionar solo registros que estén derivados..!");
+                            return;
+                        }
+                    }            
+                    
+                    jQuery("#list").jqGrid('delGridRow',arrSelected,{reloadAfterSubmit:false, url:'<?php echo $this->baseUrlController ?>/eliminar/', width: 400, height: 120,
+                                        closeOnEscape:true,
+                                        afterSubmit:function(data_from_server){  /* Función que se ejecuta "después de hacer el submir".  Recibe datos desde el server */
+                                                var result=data_from_server.responseText.split("|");
+                                                if (result[0] == "error"){
+                                                    return [false,result[1]] /* No elimina el registro del grid y muestra un mensaje */
+                                                } else {
+                                                    gridReload(); /* Recargo el grid */
+                                                    return [true,result[1]]; /* Si elimina el regisro del grid y muestra un mensaje */
+                                                }
+                                        }
+                    }); /* Elimina todos los registros seleccionados */
+
+                } else {
+                    MyAlert("Seleccione el(los) registro(s) a eliminar!");
+                }
+        });
+
+        /* Para pedir expediente */
+
+        var locationDestino = '';
+
+        $("#btnNewExterno").click(function() {
+        
+            locationDestino = '<?php echo $this->baseUrlController ?>/agregar/';
+            exigeExpediente = false;
+            pedirExpdte();
+
+        });
+
+        $("#btnNewInterno").click(function() {
+        
+            locationDestino = '<?php echo $this->baseUrlController ?>/agregarinterno/';            
+            exigeExpediente = false;
+            pedirExpdte();
+
+        });
+
+        $("#btnNewJefatura").click(function() {
+        
+            locationDestino = '<?php echo $this->baseUrlController ?>/agregarinterno/tipo/0/';        
+            exigeExpediente = true;
+            pedirExpdte();
+
+        });
+
+        function pedirExpdte(){
+
+//            if(exigeExpediente){
+//                $('#btnContinuar').hide();    
+//            } else {
+//                $('#btnContinuar').show();    
+//            }
+            
+            /* Limpio divs y valor de la caja de texto */
+            $('#etiquetas').text("");
+            $('#campos').text("");
+            $('#txtExpediente').val("");            
+
+            /* Abro la ventana para pedir el expediente */
+            $("#dialog-expdte").dialog("open");
+            
+        }
+
+        $("#dialog-expdte").dialog({
+            title: "Expediente de Referencia",
+            modal: true,
+            autoOpen: false,
+            width: 500,
+            height: 'auto',
+            buttons: {
+                Cerrar: function() {
+                    $(this).dialog('close');
+                }
+            }
+        });
+
+        $("#btnContinuar").button({
+        })
+
+        $("#btnContinuar").click(function() {
+
+//validaExpdte();
+
+            var expdte_id = $('#txtExpediente').val();
+            if(expdte_id){            
+                validaExpdte();
+                if(!expdteValido){
+                    alert('Expediente no válido');
+                    return false;
+                }
+            }
+            document.location = locationDestino + 'expdte_id/'+expdte_id;
+        
+       
+        });
+
+        $('#txtExpediente').keypress(function(event)
+            {   
+                if ( event.keyCode === 13 )
+                {   
+                    validaExpdte();
+                }
+         });                
+
+         function validaExpdte(){
+             
+                    var expdte_id = $('#txtExpediente').val();
+                    
+                    /* Solo deben digitar números */
+                    if (!/^([0-9])*$/.test(expdte_id)){
+                        alert('Digite un número de Expediente');
+                        return false;
+                    }
+
+                    /* Si se ha digitado un expediente */
+                    if(expdte_id){
+
+                        /* Obtengo el último doc. del expediente */
+                        $.ajax({
+                                async:false,                             
+                                type: "POST",
+                                url: "<?php echo $this->baseUrlController ?>/obtienedatosexpdte/",
+                                data: "expdte_id="+expdte_id,
+                                success: function(datos){
+
+                                    var documento = jQuery.parseJSON(datos);
+//                                    console.log(documento);
+//                                    console.log(documento[0].documento);
+
+                                    if(documento[0].documento){
+
+                                        var etiquetas = '<br>';
+                                        etiquetas += "Documento: &nbsp; <br>";
+                                        etiquetas += "Firma: &nbsp; <br>";
+                                        etiquetas += "Asunto: &nbsp; <br>";
+
+                                        var campos = '<br>';
+                                        campos += documento[0].documento + "<br>";
+                                        campos += documento[0].firma + "<br>";
+                                        campos += documento[0].asunto + "<br>";
+
+                                        $('#etiquetas').html(etiquetas);
+
+                                        $('#campos').html(campos);
+
+                                        expdteValido = true;    
+
+                                    } else {
+                                        
+                                        $('#campos').html("<br><b>El número de expediente ¡No existe!.  por favor corrija</b>");
+                                        expdteValido = false;
+
+                                        return false;
+                                    }    
+
+
+                                }
+                        });            
+                        
+                        
+                    } 
+
+         }
+
+
+        /* FIN: Para pedir expediente */
+
+
+    });
+
+</script>
+<div id="wndEdicion"></div>
+<div id="dialog-expdte" title="Expediente">
+    <BR>
+<!--    <form  method="POST">-->
+        <label for="name"># de Expediente</label>
+        <input type="text" name="txtExpediente" id="txtExpediente"  />
+<!--    </form>-->
+    <div id="detalleExpdte">
+        <div id="etiquetas"></div>
+        <div id="campos"></div>
+    </div>
+    <br>
+    <a href='#' id='btnContinuar' >Continuar</a>        
+</div>
+<iframe align="top" width="100%" height="100%" style="visibility: hidden" frameborder="1" name="controle" id="controle">
+</iframe>

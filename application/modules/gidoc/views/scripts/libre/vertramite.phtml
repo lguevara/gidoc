@@ -1,0 +1,147 @@
+<?php if ($this->procede): ?>        
+
+    <?php
+    $this->jQuery()
+            ->addJavascriptFile($this->baseUrl . '/js/jquery/jqgrid/js/i18n/grid.locale-es.js')
+            ->addJavascriptFile($this->baseUrl . '/js/jquery/jqgrid/js/jquery.jqGrid.min.js')
+            ->addStylesheet($this->baseUrl . "/js/jquery/jqgrid/css/ui.jqgrid.css");
+    ?>
+
+    <style>
+
+        .container {
+            display: table;
+            width: 100%;
+        }
+
+        .row {
+            display: table-row;
+        }
+
+        .cell1 {
+            display: table-cell;
+            width: 40%;
+        }
+
+        .cell2 {
+            display: table-cell;
+            width: 60%;
+        }
+
+
+    </style>
+
+    <div class="titulo"><?php echo "Trámite del registro [{$this->objDocumento->expediente_id}-{$this->objDocumento->secuencia}]" ?></div>
+    <div class="ui-widget ui-widget-content ui-corner-all" id="divObjPadre">
+        <div class="container">
+            <div class="row">
+                <div class="cell1"><? echo $this->form; ?></div>
+                <div class="cell2" >
+                    <div>
+                        <a href='#' id="btnImprimeTramite" onclick="imprimeTramite()"> Imprimir hoja de trámite </a>                            
+                    </div>       
+                    
+                    
+                    <? if ($this->haParticipadoEnTramite > 0): /* Si el usuario ha participado en el trámite */ ?>
+
+                        <? if ($this->objDocumento->origen == 1): /* Si es Interno */ ?>
+                            <a target='_blank' href='/gidoc/rptdocumento/index/documento_id/<?php echo $this->objDocumento->id ?>' > <span class='ui-icon ui-icon-document'></span>Ver documento </a>
+                        <?php endif; ?>  
+
+                        <?php if (count($this->rsArchivos) > 0): /* Si existen archivos subidos */ ?>
+                            
+                            <h3>Archivo(s) Subido(s)</h3>    
+                            <ul>
+                            <?php foreach ($this->rsArchivos as $value):?>
+                                <li>
+                                <a target='_blank' href='/uploads/<?php echo $value['nombre_archivo']; ?>' > <?php echo $value['descripcion'];?> </a>    
+                                </li>
+                            <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>                          
+                            
+                            
+                    <?php endif; ?>              
+                </div>
+            </div>
+        </div>    
+    </div>
+
+
+
+    <table id="lisTramite" ></table>
+
+    <script type="text/javascript">
+
+        jQuery("#lisTramite").jqGrid({
+            url: '<?php echo $this->baseUrlController ?>/listartramite/documento_id/<? echo $this->documento_id; ?>',
+                    datatype: "json",
+                    colNames: [<?php echo $this->colNames ?>],
+                    colModel: [
+    <?php echo $this->colModel ?>
+                    ],
+                    rowNum: 25,
+                    height: "300",
+                    autowidth: true,
+                    sortname: '<? echo $this->sortName ?>',
+                    sortorder: "asc",
+                    loadError: function(xhr, st, err) {
+                        jQuery("#rsperror").html("Type: " + st + "; Response: " + xhr.status + " " + xhr.statusText + "; Error: " + err);
+                    }
+                });
+
+                function desadjuntar(id, idadjuntado) {
+
+                    jConfirm('¿ Está seguro de Desadjuntar este Documento ?', 'Dialogo de Confirmación', function(ok) {
+                        if (ok) {
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/gidoc/documentos/desadjuntar/id/" + id + "/idadjuntado/" + idadjuntado,
+                                success: function(datos) {
+                                    var result = datos.split("|");
+                                    if (result[0] == "error") {
+                                        MyAlert("ERROR: " + result[1])
+                                        return false
+                                    }
+                                    gridReload()
+                                }
+                            });
+                        }
+                    });
+
+                }
+
+                function gridReload() {
+                    jQuery("#lisTramite").jqGrid('setGridParam', {url: '<?php echo $this->baseUrlController ?>/listartramite/documento_id/<? echo $this->documento_id; ?>', page: 1}).trigger("reloadGrid");
+                        }
+
+                        function imprimeTramite() {
+                            url = '<?php echo $this->urlReportes; ?>rptTramite.php?documento_id=<?php echo $this->objDocumento->id ?>';
+                                    $('#controle').attr('src', url);
+                                }
+
+
+    </script>
+    <script type="text/javascript">
+        /*
+         * Entorno de configuración para el grid
+         **/
+
+        /* Oculto campos */
+    //     jQuery("#lisTramite").jqGrid('hideCol',[<?php echo $this->hideCol ?>]); /* Para ocultar columnas, pueden agregarse estas separadas por comas */
+
+
+        $(function() {
+
+            /* Agrego en la barra inferior solo el botón Recargar */
+            jQuery("#lisTramite").jqGrid('navGrid', '#pager', {edit: false, add: false, del: false, search: false});
+
+            $("#btnImprimeTramite").button({
+            })
+            
+
+        });
+
+    </script>
+<?php endif; ?>

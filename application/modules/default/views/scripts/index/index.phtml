@@ -1,0 +1,20 @@
+
+    <div id="divFondo" style="width: 100%;text-align: center;">
+
+        <h2><?php echo $this->layout()->nombresistema; ?></h2>
+        <img src="/css/images/fondo.png"/>
+<?php if (!$this->layout()->usuario): ?>
+        <h3>
+            Ingrese el número de registro para ver el trámite y estado actual de su documento.
+        </h3>
+
+        <div id="divVerTramite2" class="">
+            <input class="" type="text" placeholder="Registro" name="txtDocumentoId2" id="txtDocumentoId2" size="5"/>
+            <a href='#' id='btnVerTramite2' >Ver Trámite</a>
+        </div>    
+<?php endif; ?>
+
+    </div>
+
+
+

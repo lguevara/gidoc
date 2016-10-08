@@ -1,0 +1,129 @@
+<style>
+    #gridDervivos {
+        margin: 5px;
+    }
+
+</style>
+<hr>
+<div id="divBotonera">
+    <a href='#' id='btnGuardarGrupo' >Guardar grupo</a>                
+    <a href='#' id='btnDerivar' >Nueva derivación</a>        
+</div>
+
+<div class="titulo">
+    Derivaciones
+</div>    
+
+<div id="divLista">
+    <div id="gridDervivos">
+        <table id="listDerivos" ></table>
+        <div id="pagerDerivos" ></div>
+    </div>
+</div>
+
+<script>
+
+    $().ready(function() {
+
+        $("#btnDerivar").button({
+            icons: {
+                primary: 'ui-icon-circle-plus'
+            }
+        })
+
+        $("#btnGuardarGrupo").button({
+            icons: {
+                primary: 'ui-icon-disk'
+            }
+        })
+
+
+        /* Configuro la ventana de Edición */
+        $("#wndEdicion").dialog({
+            title: "Edición",
+            modal: true,
+            autoOpen: false,
+            width: 500,
+            height: 'auto',
+            buttons: {
+                Cerrar: function() {
+                    $(this).dialog('close');
+                }
+            }
+        });
+
+    });
+
+    jQuery("#listDerivos").jqGrid({
+        url: '<?php echo $this->baseUrlController ?>/listarderivos/',
+        datatype: "json",
+        colNames: [<?php echo $this->derivos_colNames ?>],
+        colModel: [<?php echo $this->derivos_colModel ?>],
+        height: "130",
+        width: "785",
+        sortname: '<? echo $this->derivos_sortName ?>',
+        viewrecords: true,
+        sortorder: "desc"
+    });
+
+    function gridReload() {
+        jQuery("#listDerivos").jqGrid('setGridParam', {url: '<?php echo $this->baseUrlController ?>/listarderivos/'}).trigger("reloadGrid");
+    }
+
+    function eliminarDerivo(id) {
+        $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+        jConfirm('¿ Está seguro de eliminar esta derivación ?', 'Dialogo de Confirmación', function(ok) {
+            if (ok) {
+                $.ajax({
+                    type: "POST",
+                    url: "<?php echo $this->baseUrlController ?>/eliminarderivo/id/" + id,
+                    success: function(datos) {
+                        var result = datos.split("|");
+                        if (result[0] == "error") {
+                            MyAlert("ERROR: " + result[1])
+                            return false
+                        }
+                        gridReload();
+                    }
+                });
+            }
+        });
+
+    }
+
+    $("#btnDerivar").click(function() {
+
+        /* Muevo el scroll hacia el bottom */
+        $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+
+        /* Asigno nuevo Título a la ventana que se abrirá */
+        $("#wndEdicion").dialog("option", "title", '[Derivar]');
+        $("#wndEdicion").dialog("option", "width", 600);
+
+        /* Cargo en el div la página que deseo */
+        $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/derivartemporal/');
+
+        /* Abro la ventana */
+        $("#wndEdicion").dialog('open')
+
+    });
+
+    $("#btnGuardarGrupo").click(function() {
+
+        /* Muevo el scroll hacia el bottom */
+        $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+
+        /* Asigno nuevo Título a la ventana que se abrirá */
+        $("#wndEdicion").dialog("option", "title", '[Derivar]');
+
+        /* Cargo en el div la página que deseo */
+        $("#wndEdicion").load('<?php echo $this->baseUrlController ?>/guardargrupo/');
+
+        /* Abro la ventana */
+        $("#wndEdicion").dialog('open')
+
+    });
+
+
+</script>
+<div id="wndEdicion"></div>

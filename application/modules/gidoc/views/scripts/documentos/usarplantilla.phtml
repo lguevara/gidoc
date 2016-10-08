@@ -1,0 +1,40 @@
+<?php $this->LoadFilesForm(array('ui.datepicker')); ?>
+<?php echo $this->form ?>
+<style>
+#frmUsarPlantilla label.error, #frmUsarPlantilla input[type=submit], #frmUsarPlantilla input[type=button] { margin-left: 7em; /* 3 menos que width de dt label */ }
+    
+</style>
+<script type="text/javascript">
+
+    $().ready(function() {
+        
+        /* Para resaltar los input que son validados como requeridos.
+         * Son resaltados en base a una clase de jquery-ui para que
+         * se adapte el color a cualquier theme elegido.
+         * */
+        $.validator.setDefaults({
+                highlight: function(input) {
+                        $(input).addClass("ui-state-highlight");
+                },
+                unhighlight: function(input) {
+                        $(input).removeClass("ui-state-highlight");
+                }
+        });
+
+            
+        $("#frmUsarPlantilla").submit(function(e){
+            
+            e.preventDefault(); /* Evito el Submit */
+            
+            /* Llamo al agregainterno enviando la plantilla elegida */
+            var plantilla_id = $("#plantilla_id").val();
+            document.location = '<?php echo $this->baseUrlController ?>/agregarinterno/plantilla_id/'+plantilla_id+'/tipo/<?php echo $this->tipo; ?>';                        
+        });            
+            
+
+        /* Aplico estilo al botón guardar */
+        $("#ObtenerPlantilla").button();
+
+    });
+
+</script>

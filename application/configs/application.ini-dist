@@ -1,0 +1,108 @@
+[production]
+phpSettings.display_startup_errors = 0
+phpSettings.display_errors = 0
+includePaths.library = APPLICATION_PATH "/../library"
+bootstrap.path = APPLICATION_PATH "/Bootstrap.php"
+bootstrap.class = "Bootstrap"
+appnamespace = "Application"
+
+resources.frontController.moduleDirectory = APPLICATION_PATH "/modules"
+resources.frontController.params.displayExceptions = 0
+resources.frontController.params.prefixDefaultModule = 1
+resources.modules[] =
+
+autoloaderNamespaces.myzend = "MyZend"
+
+; Recurso Jquery
+
+pluginPaths.ZendX_Application_Resource = "ZendX/Application/Resource"
+
+resources.jquery.localpath    = "/js/jquery/jquery-1.7.2.min.js"
+resources.jquery.ui_localpath = "/js/jquery/ui/jquery-ui-1.8.21.custom.min.js"
+resources.jquery.stylesheets.0   = "/js/jquery/ui/themes/redmond/jquery-ui-1.8.21.custom.css"
+resources.jquery.stylesheets.1   = "/css/estilo.css"
+resources.jquery.stylesheets.2   = "/js/jquery/jqalert/jquery.alerts.css"
+resources.jquery.javascriptfiles.0 = "/js/myjs.js"
+resources.jquery.javascriptfiles.1 = "/js/jquery/jqalert/jquery.alerts.js"
+
+; Log
+resources.log.stream.writerName = "Stream"
+resources.log.stream.writerParams.stream = APPLICATION_PATH "/../logs/application.log"
+resources.log.stream.writerParams.mode = "a"
+resources.log.stream.filterName = "Priority"
+resources.log.stream.filterParams.priority = 4
+
+; Layout:
+resources.layout.layout = "main" ; Layout principal por defecto para todo Sistema
+;resources.layout.layout = "main_content" ; Layout solo con "content" para integrar a otros Sistemas. 
+resources.layout.layoutPath = APPLICATION_PATH "/layouts/scripts"
+
+; Db:
+resources.db.adapter = "pdo_pgsql"
+resources.db.params.host = "localhost"
+resources.db.params.username = "[USER]"
+resources.db.params.password = "[PASSWORD]"
+resources.db.params.dbname = "[myDb]"
+resources.db.params.charset = "UTF8"
+resources.db.isDefaultTableAdapter = true
+
+; Autenticación:
+auth.TableName = usuarios
+auth.ColumnId = id_usu ; Este campo no se usa para la autenticación.  Se utiliza para saber el id del usuario.
+auth.IdentityColumn = login
+auth.CredentialColumn = password
+
+; General
+general.urlDominio = http://localhost:10088/
+general.urlReportes = http://localhost:10088/misreportes/nombremodulo/
+general.nombresistema = Sistema
+general.timezone = America/Lima
+general.siglas = Sist
+
+; Configuración de Proceso de Email
+gmail.usuario = usuario
+gmail.password = pass
+
+; Seteos de PHP
+phpSettings.date.timezone = "America/Lima"
+
+; —
+; Navigation
+; —
+config = APPLICATION_PATH "/configs/navigation.ini"
+
+; —
+; Acl
+; —
+; Roles
+acl.roles.Visitante = null
+acl.roles.Operador = Visitante
+acl.roles.Admin = Operador
+
+; Recursos 
+acl.resources.clientes = null
+
+acl.resources.administracion = null
+acl.resources.usuarios = null
+acl.resources.roles = null
+acl.resources.empresas = null
+
+
+
+; Asignación de los permisos
+acl.permisos.allow.clientes = Operador
+acl.permisos.allow.usuarios = Admin
+acl.permisos.allow.empresas = Admin
+acl.permisos.deny.usuarios = Operador
+acl.permisos.deny.empresas = Operador
+
+[staging : production]
+
+[testing : production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+
+[development : production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+resources.frontController.params.displayExceptions = 1

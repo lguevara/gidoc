@@ -1,0 +1,202 @@
+﻿<?php
+$this->jQuery()
+        ->addJavascriptFile($this->baseUrl . '/js/jquery/jqgrid/js/i18n/grid.locale-es.js')
+        ->addJavascriptFile($this->baseUrl . '/js/jquery/jqgrid/js/jquery.jqGrid.min.js')
+        ->addStylesheet($this->baseUrl . "/js/jquery/jqgrid/css/ui.jqgrid.css");
+?>
+
+<?php $this->LoadFilesForm(array('ui.datepicker')); ?>
+<div class="titulo"><?php echo $this->titulo ?></div>
+
+
+<div class='ui-widget ui-widget-content ui-corner-all' style="width: 800px; background-color: #F0F0EE">
+    <div id="divBotonera">
+
+        <a id ="btnRegresar" href="<?php echo $this->url(array('controller' => 'documentos','action'=> 'poratender'));?>">Regresar</a>
+    </div>
+
+    <!--Para la subida de archivos -->
+    <?php if ($this->usua_idregistro): ?>
+        <?php echo  $this->render("documentos/subirarchivos.phtml"); ?>    
+    <?php endif; ?>
+
+    <!--Para la subida de archivos -->
+
+    <div id="dialog" title="Documento">
+        <?php echo $this->form ?>
+    </div>
+    
+    <!--Para la derivación -->
+    <?php if (!$this->usua_idregistro): ?>
+        <?php echo  $this->render("documentos/derivos.phtml"); ?>    
+    <?php endif; ?>
+
+    <!--Para la derivación -->
+    
+</div>    
+
+<link href="/js/jquery/select2-3.5.4/select2.css" rel="stylesheet"/>
+<script src="/js/jquery/select2-3.5.4/select2.js"></script>
+
+<script type="text/javascript">
+
+    /* Entidades */
+    function muestraDato(Id){
+        $("#dependencia_id").select2('val', Id);
+    }    
+    /**/
+
+
+    $().ready(function() {
+
+        /* Aplico select2 */
+        $("#tipo_documento_id, #procedimiento_id").select2({
+            width: '400px',
+            allowClear: true,
+        })
+        
+            /* Entidades */
+            var urlGetEntidades = "<?php echo $this->baseUrlController ?>/get-for-entidad/";
+
+            $("#dependencia_id").select2({
+                placeholder: "Digite la Entidad orígen",
+                minimumInputLength: 3,
+                width: '400px',    
+                allowClear: true,
+                ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+                    url: urlGetEntidades,
+                    dataType: 'json',
+                    quietMillis: 500,
+                    data: function (term, page) {
+                        return {
+                            q: term, // search term
+                        };
+                    },
+                    results: function (data, page) { // parse the results into the format expected by Select2.
+                        // since we are using custom formatting functions we do not need to alter the remote JSON data
+                        return { results: data };
+                    },
+                    cache: true
+                },
+                initSelection: function(element, callback) {
+                    var id;
+                    id = $(element).val();
+                    if (id !== "") {
+                      return $.ajax({
+                        url: urlGetEntidades,
+                        type: "POST",
+                        dataType: "json",
+                        data: {
+                          id: id
+                        }
+                      }).done(function(data) {
+                        callback({id: data[0].id, text: data[0].text });
+                      });
+                    }
+                  },            
+                escapeMarkup: function (m) { return m; } // we do not want to escape markup since we are displaying html in results
+            });
+
+            $( "<a id='btnNewOpcion' href='#'>Nuevo</a>" ).insertAfter( "#dependencia_id" );        
+
+            $( "#btnNewOpcion" ).button({
+                  icons: {
+                    primary: "ui-icon-plus"
+                  },
+                  text: false
+            });        
+            
+            $("#btnNewOpcion").click(function() {
+
+                $("#wndNewOpcion").text(""); 
+
+                /* Cargo en el div la página que deseo */
+                $("#wndNewOpcion").load('<?php echo $this->baseUrlModulo ?>/entidades/agregar/idForm/frmEditarHijo');
+                $("#wndNewOpcion").dialog('open');
+
+            });
+
+            /* Configuro la ventana de Edición */
+            $("#wndNewOpcion").dialog({
+                title: "Nueva entidad",
+                modal: true,                
+                autoOpen: false,
+                width: 700,
+                height: 'auto',
+                buttons: {
+                    Cerrar: function() {
+                        $(this).text("");
+                        $(this).dialog('close');
+                    }
+                }
+            });
+
+            /**/
+        
+        
+        /* */
+
+
+        /* Aplicando ventana de dialogo al formulario */
+        /*
+         $( "#dialog" ).dialog({
+         height: 450,
+         width: 700
+         });
+         
+         $('#dialog').closest('.ui-dialog').find('.ui-dialog-titlebar-close').remove();      
+         */
+        /* */
+
+        $("#btnRegresar").button({
+        })
+
+        /* A todos los objetos que tengan la clase datePickerUi los convierto en datepicker de JqueryUI */
+        $(".datePickerUi").datepicker({dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            showOn: 'button',
+            buttonImage: '<?php echo $this->baseUrl . '/css/images/calendario.gif'; ?>',
+            buttonImageOnly: true
+        });
+
+        $(".datePickerUi").mask("99/99/9999");
+
+        /* Setfocus */
+
+        //asignamos el plugin ajaxForm al formulario frmEditar
+        /* SE USABA ANTES (NO DEJABA EL CURSOR EN EL CAMPO CUANDO ESTE ERA REQUERIDO)
+         *                $('#frmEditar').ajaxForm({
+         beforeSubmit: validarForm, //funcion que se ejecuta antes de enviar el form
+         success: recibeRespuesta //funcion que se ejecuta una vez enviado el formulario
+         }) ;
+         */
+        /* Para resaltar los input que son validados como requeridos.
+         * Son resaltados en base a una clase de jquery-ui para que
+         * se adapte el color a cualquier theme elegido.
+         * */
+        $.validator.setDefaults({
+            highlight: function(input) {
+                $(input).addClass("ui-state-highlight");
+            },
+            unhighlight: function(input) {
+                $(input).removeClass("ui-state-highlight");
+            }
+        });
+
+        /* Aplico estilo al botón guardar */
+        $("#guardar").button();
+
+        $("#frmEditarDoc").validate();
+
+        /* Si estamos editando y el usua_id del registro es diferente a la usua_id de session, oculto el botón guardar */
+<?php if ($this->usua_idregistro and $this->usua_idregistro <> $this->usua_idsession): ?>
+            $("#guardar").hide();
+<?php endif; ?>
+
+
+    });
+
+</script>
+
+<div id="wndNewOpcion"></div>

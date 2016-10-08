@@ -1,0 +1,131 @@
+<h3 id="opcSubir">
+    <a href="#">Subir archivos</a>
+</h3>
+
+<div id='divArchivos'>
+    <form id="upload_form" enctype="multipart/form-data" method="post">
+        <input type="hidden" name="padreId" id="padreId" value="<?php echo $this->id ?>" /> 
+        <input type="text" name="txtDescripcion" id="txtDescripcion" placeholder="Descripción del archivo">
+        <input type="file" name="file1" id="file1"><br>
+        <input type="button" value="Subir archivo" onclick="uploadFile()">
+        <progress id="progressBar" value="0" max="100" style="width:300px;"></progress>
+        <h3 id="status"></h3>
+        <p id="loaded_n_total"></p>
+    </form>
+
+    <table id="listArchivos" ></table>
+    <div id="pagerArchivos" ></div>
+</div>
+
+
+<script>
+
+    $().ready(function() {
+        /* Si estamos editando */
+        <?php if ($this->usua_idregistro): ?>
+            /* Oculto el grid de archivos */
+            $("#divArchivos").css("display", "none");
+
+            $("#opcSubir").click(function() {
+                $("#divArchivos").toggle();
+            });
+
+            /*oculto las cabeceras de los campos del grid*/
+            $("#listArchivos").parents("div.ui-jqgrid-view").children("div.ui-jqgrid-hdiv").hide();
+
+        <?php endif; ?>
+
+    });
+
+    /* Script written by Adam Khoury @ DevelopPHP.com */
+    /* Video Tutorial: http://www.youtube.com/watch?v=EraNFJiY0Eg */
+    function _(el) {
+        return document.getElementById(el);
+    }
+    function uploadFile() {
+
+        var padreId = $("#padreId").val();
+
+        var file1 = $("#file1").val()
+        if (!file1) {
+            alert('Debe seleccionar el archivo que va a subir');
+            return;
+        }
+
+        var txtDescripcion = $("#txtDescripcion").val()
+
+        var file = _("file1").files[0];
+        if (file.size > 6291456) { /* Solo hasta 6 MB*/
+            alert('Archivo muy pesado. Solo puede subir archivos de hasta 6MB');
+            return;
+        }
+
+        // alert(file.name+" | "+file.size+" | "+file.type);
+        var formdata = new FormData();
+        formdata.append("padreId", padreId);
+        formdata.append("txtDescripcion", txtDescripcion);
+        formdata.append("file1", file);
+        var ajax = new XMLHttpRequest();
+        ajax.upload.addEventListener("progress", progressHandler, false);
+        ajax.addEventListener("load", completeHandler, false);
+        ajax.addEventListener("error", errorHandler, false);
+        ajax.addEventListener("abort", abortHandler, false);
+        ajax.open("POST", "/gidoc/documentos/subirarchivo/");
+        ajax.send(formdata);
+    }
+    function progressHandler(event) {
+        _("loaded_n_total").innerHTML = "Uploaded " + event.loaded + " bytes of " + event.total;
+        var percent = (event.loaded / event.total) * 100;
+        _("progressBar").value = Math.round(percent);
+        _("status").innerHTML = Math.round(percent) + "% uploaded... please wait";
+    }
+    function completeHandler(event) {
+        _("status").innerHTML = event.target.responseText;
+        _("progressBar").value = 0;
+        gridReloadArchivos();
+    }
+    function errorHandler(event) {
+        _("status").innerHTML = "Upload Failed";
+    }
+    function abortHandler(event) {
+        _("status").innerHTML = "Upload Aborted";
+    }
+
+    jQuery("#listArchivos").jqGrid({
+        url: '<?php echo $this->baseUrlController ?>/listararchivos/padre_id/<?php echo $this->id ?>',
+                datatype: "json",
+                colNames: [<?php echo $this->archivos_colNames ?>],
+                colModel: [
+<?php echo $this->archivos_colModel ?>
+                ],
+                height: "50",
+                width: "300",
+                sortname: '<? echo $this->archivos_sortName ?>',
+                viewrecords: true,
+                sortorder: "desc"
+            });
+
+            function gridReloadArchivos() {
+                jQuery("#listArchivos").jqGrid('setGridParam', {url: '<?php echo $this->baseUrlController ?>/listararchivos/padre_id/<?php echo $this->id ?>'}).trigger("reloadGrid");
+                    }
+
+                    function eliminarArchivo(id) {
+                        jConfirm('¿ Está seguro de eliminar este Archivo ?', 'Dialogo de Confirmación', function(ok) {
+                            if (ok) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "<?php echo $this->baseUrlController ?>/eliminararchivo/id/" + id,
+                                    success: function(datos) {
+                                        var result = datos.split("|");
+                                        if (result[0] == "error") {
+                                            MyAlert("ERROR: " + result[1])
+                                            return false
+                                        }
+                                        gridReloadArchivos();
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+</script>

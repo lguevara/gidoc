@@ -1,0 +1,25 @@
+<?php echo $this->doctype() ?>
+<html>
+    <head>
+        <?php echo $this->headTitle() ?>
+        <?php echo $this->headMeta() ?>
+        <?php $this->headLink()->appendStylesheet($this->baseUrl."/css/estilo_content.css")."\n"; ?>
+        <?php $this->headLink()->appendStylesheet($this->baseUrl."/js/jquery/jqalert/jquery.alerts.css")."\n"; ?>
+        <?php echo $this->headLink()->prependStylesheet($this->baseUrl."/js/jquery/ui/themes/redmond/jquery-ui-1.8.6.custom.css")."\n"; ?>
+        <?php $this->headScript()->prependFile($this->baseUrl.'/js/jquery/jquery-1.4.2.min.js'); /* Este es el primero en cargar */ ?>
+        <?php $this->headScript()->appendFile($this->baseUrl.'/js/jquery/jqalert/jquery.alerts.js'); ?>
+        <?php $this->headScript()->appendFile($this->baseUrl.'/js/myjs.js'); ?>
+        <?php echo $this->headScript()->appendFile($this->baseUrl.'/js/jquery/ui/jquery-ui-1.8.16.custom.min.js'); ?>
+
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="content" >
+                <?php
+                    echo $this->layout()->content;
+                ?>
+            </div>
+        </div>
+        <div id="wndDialogo" ></div>
+    </body>
+</html>

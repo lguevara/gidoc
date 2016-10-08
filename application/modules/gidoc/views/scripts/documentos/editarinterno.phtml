@@ -1,0 +1,260 @@
+﻿<?php $this->jQuery()
+           ->addJavascriptFile($this->baseUrl.'/js/jquery/jqgrid/js/i18n/grid.locale-es.js') 
+           ->addJavascriptFile($this->baseUrl.'/js/jquery/jqgrid/js/jquery.jqGrid.min.js')
+           ->addStylesheet($this->baseUrl."/js/jquery/jqgrid/css/ui.jqgrid.css") ; ?>
+
+<?php $this->LoadFilesForm(array('ui.datepicker')); ?>
+<div class="titulo"><?php echo $this->titulo ?></div>
+
+
+<div class='ui-widget ui-widget-content ui-corner-all' style="width: 800px; background-color: #F0F0EE">
+
+    <div id="divBotonera">
+
+        <a href='#' id ="lnkUsarPlantilla">Utilizar plantilla</a>
+        
+        <a id ="btnRegresar" href="<?php echo $this->url(array('controller' => 'documentos',
+                                        'action' => 'poratender'));?>">Regresar</a>
+    </div>
+    
+    <!--Para la subida de archivos -->
+    <?php if ($this->usua_idregistro): ?>
+        <?php echo  $this->render("documentos/subirarchivos.phtml"); ?>    
+    <?php endif; ?>
+
+    <!--Para la subida de archivos -->
+    
+    <div >
+    <?php echo $this->form ?>
+    </div>
+
+    <!--Para la derivación -->
+    <?php if (!$this->usua_idregistro): ?>
+        <?php echo  $this->render("documentos/derivos.phtml"); ?>    
+    <?php endif; ?>
+
+    <!--Para la derivación -->
+    
+</div>
+    
+<?php $this->headScript()->appendFile($this->baseUrl.'/js/tiny_mce/tiny_mce.js'); ?>
+
+<link href="/js/jquery/select2-3.5.4/select2.css" rel="stylesheet"/>
+<script src="/js/jquery/select2-3.5.4/select2.js"></script>
+
+<script type="text/javascript">
+
+    $().ready(function() {
+
+        /* Para aplicar select2 */
+        $("#tipo_documento_id, #dependencia_iddestino").select2({
+            width: '400px',    
+            allowClear: true,
+        })
+        
+        /**/
+
+        /* Obtengo el número según el tipo de documento */    
+        $('#tipo_documento_id').change(function() {
+            var tipo = <?php echo $this->tipo; ?>;
+            var dependencia_id = $('#dependencia_id').val();
+            $.ajax({
+                    type: "POST",
+                    url: "<?php echo $this->baseUrlController ?>/obtienenumero/",
+                    data: "tipo_documento_id="+this.value+"&dependencia_id="+dependencia_id+"&tipo="+tipo,
+                    success: function(datos){
+                        $('#numero').val(datos)
+                    }
+            });            
+
+        });
+        /* Fin ---- Obtengo el número según el tipo de documento */
+        
+        /* Actualizo el número de Documento si se cambia la Dependencia Orígen */
+        $('#dependencia_id').change(function() {
+            var tipo_documento_id = $('#tipo_documento_id').val() || 0;
+            if(tipo_documento_id !== 0){
+                $("#tipo_documento_id").trigger("change");        
+            }    
+        });
+        
+        /* Actualizo si se cambia la Dependencia Orígen */
+
+
+        /* Muestro objeto para seleccionar o editar destino */
+        
+        $('#para_destino-element').append("<a id='seleccionaDestino' href='#'>Elegir de lista</a>");            
+        $('#dependencia_iddestino-element').append("<a id='editaDestino' href='#'>Editar</a>");
+        
+	$("#editaDestino").click(function() {
+            $("#para_destino-element").show();        
+            $("#para_destino-label").show();        
+            $("#para_destino").focus();
+            
+            $("#dependencia_iddestino-label").hide();        
+            $("#dependencia_iddestino-element").hide();        
+            $("#dependencia_iddestino").val('');
+            
+        });
+
+
+	$("#seleccionaDestino").click(function() {
+            $("#dependencia_iddestino-label").show();        
+            $("#dependencia_iddestino-element").show();        
+
+            $("#para_destino-label").hide();        
+            $("#para_destino-element").hide();        
+            $("#para_destino").val('');
+
+        });
+
+
+        $("#dependencia_iddestino").change(function() {
+            
+            dependencia_iddestino = $(this).val();
+            
+            $.ajax({
+                    type: "POST",
+                    url: "<?php echo $this->baseUrlController ?>/obtienedatosdestino/",
+                    data: "dependencia_iddestino="+dependencia_iddestino,
+                    success: function(datos){
+                        var result = datos.split("|"); /*Recibo el mensaje desde el server */
+                        $('#dependencia_destino').val(result[0])                
+                        $('#cargo_destino').val(result[1])
+                    }
+            });            
+
+        })
+
+
+        <?php if($this->usua_idregistro or $this->desdePlantilla):  ?>   /* Si estoy editando el registro o se ha elegido una plantilla */      
+
+            dependencia_iddestino = $("#dependencia_iddestino").val();
+
+            if(dependencia_iddestino){
+                $("#seleccionaDestino").click(); 
+            } else {
+                $("#editaDestino").click();
+            }
+
+        <?php else: ?>        
+            
+            $("#seleccionaDestino").click(); 
+            
+        <?php endif; ?>
+        /* FIN: Muestro objeto para seleccionar o editar destino */
+
+        <?php if($this->desdePlantilla):  ?>   /* Si se ha elegido una plantilla */      
+            $('#tipo_documento_id').change();  /* Actualizo el número de doc. */
+        <?php endif; ?>                
+
+
+        /* Aplicando ventana de dialogo al formulario */
+        /*
+        $( "#dialog" ).dialog({
+            height: 450,
+            width: 700
+        });
+    
+        $('#dialog').closest('.ui-dialog').find('.ui-dialog-titlebar-close').remove();      
+        */
+        /* */
+
+        tinyMCE.init({
+		// General options
+                language : "es",
+                relative_urls: false,
+                mode : "exact",
+                elements : "cuerpo",
+		theme : "advanced",
+		skin : "default",
+		plugins : "phpimage,lists,table,advlink,emotions,inlinepopups,preview,print,contextmenu,fullscreen",
+
+		// Theme options
+		theme_advanced_buttons1 : "bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,fontselect,fontsizeselect,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,forecolor,backcolor",
+		theme_advanced_buttons2 : "link,unlink,anchor,phpimage,code,|,tablecontrols,|,hr,removeformat,|,sub,sup,|,charmap,emotions,|,print,|,fullscreen",
+		theme_advanced_buttons3 : "",                
+		theme_advanced_toolbar_location : "top",
+		theme_advanced_toolbar_align : "left",
+		theme_advanced_resizing : true,
+
+		// Drop lists for link/image/media/template dialogs
+		template_external_list_url : "lists/template_list.js",
+		external_link_list_url : "lists/link_list.js",
+		external_image_list_url : "lists/image_list.js",
+		media_external_list_url : "lists/media_list.js"
+
+	});
+
+
+
+        $("#btnRegresar").button({
+        })
+
+        /* Setfocus */
+
+        /* Para resaltar los input que son validados como requeridos.
+         * Son resaltados en base a una clase de jquery-ui para que
+         * se adapte el color a cualquier theme elegido.
+         * */
+        $.validator.setDefaults({
+                highlight: function(input) {
+                        $(input).addClass("ui-state-highlight");
+                },
+                unhighlight: function(input) {
+                        $(input).removeClass("ui-state-highlight");
+                }
+        });
+
+        /* Aplico estilo al botón guardar */
+        $("#guardar").button();
+
+        //$("#frmEditar").validate();
+        $("#frmEditarDoc").validate({
+            ignore: ':hidden'
+        })
+
+
+        /* Si estamos editando y el usua_id del registro es diferente a la usua_id de session, oculto el botón guardar */
+        <?php if($this->usua_idregistro and $this->usua_idregistro <> $this->usua_idsession):  ?>        
+            $("#guardar").hide();
+        <?php endif;?>
+
+        
+        /* Para el uso de plantillas */
+        /* Configuro la ventana de Edición */
+        $("#wndPlantilla").dialog({
+                title: "Edición",
+                modal: true,
+                autoOpen: false,
+                width: 500,
+                height: 'auto',
+                buttons: {
+                    Cerrar: function() {
+			$(this).dialog('close');
+                    }
+		}
+         });
+
+
+	$("#lnkUsarPlantilla").click(function() {
+                /* Asigno nuevo Título a la ventana que se abrirá */
+            $("#wndPlantilla").dialog("option", "title", 'Elegir Plantilla');
+
+            /* Cargo en el div la página que deseo */
+            $("#wndPlantilla").load('<?php echo $this->baseUrlController ?>/usarplantilla/tipo/<?php echo $this->tipo; ?>');
+
+            /* Abro la ventana */
+            setTimeout(function(){ $("#wndPlantilla").dialog('open') }, 100);
+
+        });
+
+        
+
+
+        /* FIN - Para el uso de plantillas */
+
+    });
+
+</script>
+<div id="wndPlantilla"></div>

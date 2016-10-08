@@ -1,0 +1,14 @@
+<div id="dialog" title="Ingreso">
+<?php echo $this->form ?>
+</div>
+<script>
+$(function() {
+    $( "#dialog" ).dialog();
+
+    $("#login").button();
+    
+    $('#dialog').closest('.ui-dialog').find('.ui-dialog-titlebar-close').remove(); 
+    
+    
+});
+</script>

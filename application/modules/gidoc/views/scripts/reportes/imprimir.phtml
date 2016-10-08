@@ -1,0 +1,39 @@
+<?php echo $this->form; ?>
+
+<script type="text/javascript">
+
+    $(function() {
+
+        switch ('<?php echo $this->idReporte ?>') {
+            case 'menu-rptPorAtender':
+
+                $("#dependencia_id").css("width", "300px");
+                $("#dependencia_id").select2();
+
+                break
+
+            case 'menu-rptAtendidos':
+
+                $("#dependencia_id").css("width", "300px");
+                $("#dependencia_id").select2();
+
+                break
+
+            case 'menu-rptRecibidos':
+                
+                $("#dependencia_id").css("width", "300px");
+                $("#dependencia_id").select2();
+
+                $("#dependencia_origen_id").css("width", "300px");
+                $("#dependencia_origen_id").select2();
+
+                break
+
+            default:
+                break
+        }
+
+    })
+
+
+</script>

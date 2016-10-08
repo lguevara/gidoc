@@ -1,0 +1,124 @@
+<?php $this->LoadFilesForm(array('ui.datepicker')); ?>
+
+<link href="/js/jquery/select2-3.5.4/select2.css" rel="stylesheet"/>
+<script async src="/js/jquery/select2-3.5.4/select2.js"></script>
+
+<style type="text/css">
+
+#divReportes li {
+    list-style:none;    
+    font-size: small;
+}
+
+.ui-menu { 
+    width: 40vw;
+    padding: 10px;
+
+}
+.menu-reportes li {
+    height: 30px;
+}
+</style>
+
+<div class="titulo"><?php echo $this->titulo ?></div>
+<div id="divReportes">
+    <?php 
+
+    $reportes = $this->navigation()->findOneByLabel('Reportes');
+echo $this->navigation()
+          ->menu()
+          ->renderMenu($reportes,array('ulClass' => 'menu-reportes'));
+
+    
+//        echo $this->navigation()->menu()->renderMenu(
+//            null,
+//            array(
+//                'ulClass'          => '',
+//                'minDepth'         => 1,
+//                'onlyActiveBranch' => true,
+//                'renderParents'    => false
+//            )
+//        );
+        
+    ?>
+    
+</div>
+<script type="text/javascript">
+
+    cFileReporte = '';
+
+    function imprimir(){
+        
+        /* Asigno los atributos correspondientes al formulario */
+        $("#frmReporte").attr({target: 'controle',
+                               action: cFileReporte
+                            });
+
+        /* Submiteo el formulario */
+        $('#frmReporte').submit();        
+    }
+
+    function formateo_campos(){
+	$("#fecha_desde").datepicker({dateFormat: 'dd/mm/yy',
+                                      changeMonth: true,
+                                       changeYear: true,
+                                       showOn: 'button',
+                                       buttonImage: '<?php echo $this->baseUrl.'/css/images/calendario.gif'; ?>',
+                                       buttonImageOnly: true
+                                     });
+
+        $("#fecha_desde").mask("99/99/9999");
+
+	$("#fecha_hasta").datepicker({dateFormat: 'dd/mm/yy',
+                                      changeMonth: true,
+                                       changeYear: true,
+                                       showOn: 'button',
+                                       buttonImage: '<?php echo $this->baseUrl.'/css/images/calendario.gif'; ?>',
+                                       buttonImageOnly: true
+                                     });
+
+        $("#fecha_hasta").mask("99/99/9999");
+        
+    }
+
+    $(function(){
+        
+        $( ".menu-reportes" ).menu();
+        
+        $("#divFormReportes").dialog({
+                title: "Opciones del reporte",
+                autoOpen: false,
+                resizable: false,
+                draggable: true,
+                width: 550,
+                buttons: {
+                    Imprimir: function() {
+                        imprimir();
+                    }
+                }
+
+         });
+
+        $('#divFormReportes').closest('.ui-dialog').find('.ui-dialog-titlebar-close').remove(); 
+ 
+        /* Selecciono todos los links del divReportes */
+        $('#divReportes a').click(function(evento){
+
+            //elimino el comportamiento por defecto del enlace
+            evento.preventDefault();
+
+            /* Asigno a la variable el link del reporte que se ha seleccionado (clickeado) */
+            cFileReporte = this.href;
+            
+            $("#divFormReportes").load('<?php echo $this->baseUrlController ?>/imprimir/idreporte/'+this.id);
+            
+            $("#divFormReportes").dialog('open');
+            
+        })
+        
+    })
+
+</script>
+<div id="divFormReportes"></div>
+<iframe align="top" width="100%" height="100%" style="visibility:hidden" frameborder="1" name="controle">
+</iframe>

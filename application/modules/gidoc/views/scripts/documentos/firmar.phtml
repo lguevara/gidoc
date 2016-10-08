@@ -1,0 +1,73 @@
+<?php $this->LoadFilesForm(array('')); ?>
+<?php echo $this->form ?>
+<script type="text/javascript">
+
+    $().ready(function() {
+
+        /* Para resaltar los input que son validados como requeridos.
+         * Son resaltados en base a una clase de jquery-ui para que
+         * se adapte el color a cualquier theme elegido.
+         * */
+        $.validator.setDefaults({
+            highlight: function(input) {
+                $(input).addClass("ui-state-highlight");
+            },
+            unhighlight: function(input) {
+                $(input).removeClass("ui-state-highlight");
+            }
+        });
+
+        $("#frmEditar").validate({
+            submitHandler: function(form) {
+                $(form).ajaxSubmit({
+                    beforeSubmit: validarForm, //funcion que se ejecuta antes de enviar el form
+                    success: recibeRespuestaFirma //funcion que se ejecuta una vez enviado el formulario
+                });
+            }
+        })
+
+        /* Aplico estilo al botón guardar */
+        $("#guardar").button();
+
+    });
+
+
+    function recibeRespuestaFirma(responseText) {
+        frmEnviado = false;
+        /* responseText es la variable que recibe lo que envía el server */
+        var result = responseText.split("|");
+        if (result[0] == "error") {
+            MyAlert("ERROR: " + result[1])
+            return false
+        }
+
+        if (result[0] == "information") {
+            MyAlert("IMPORTANTE: " + result[1])
+            return false
+        }
+
+        /* Cierro la ventana dialog  */
+        $('#wndEdicion').dialog('close');
+        gridReload()
+
+        /* Envío email */
+//        $.ajax({
+//            type: "POST",
+//            url: "<?php //echo $this->baseUrlController ?>/enviardocalmail/documento_id/"+<?php echo $this->documento_id; ?>,
+//            success: function(datos) {
+//                var result = datos.split("|");
+//                if (result[0] == "error") {
+//                    MyAlert("ERROR: " + result[1])
+//                    return false
+//                }
+//                /* Cierro la ventana dialog  */
+//                $('#wndEdicion').dialog('close');
+//                gridReload()
+//            }
+//        });
+
+
+    }
+
+
+</script>

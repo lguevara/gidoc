@@ -1,0 +1,147 @@
+html, body {
+    margin-top: 0;
+    font:80% "Trebuchet MS",sans-serif;
+    height:90%;    
+    background-color: #ede4d4;        
+}
+
+/*----Header----*/
+
+#header{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.item-header{
+    flex-grow: 1;            
+    height: 7vh;    
+    min-height: 4vh;    
+    padding: 0.3vmax;        
+}
+
+#divLeft{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#divBtnMenu{
+    font-size: 1.6vh;
+}
+
+#divNombreSistema{
+    margin-left: 2vh;
+    font-size: 1.9vh;    
+}
+
+#divVerTramite{
+    text-align: center;
+}
+
+#divPuerta {
+    text-align: right;
+}
+
+#divFondo{
+    font-size: 2vh;    
+}
+
+#divFondo input{
+    height: 30px;
+    width: 160px;
+}
+
+
+/* Menú */
+
+#divMenu{
+    position: absolute;
+    z-index: 1000;    
+    width: 50vw;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #ede4d4;
+    border-width: 2px;
+    border-style: solid;
+    border-color: white;
+}
+
+
+#headMenu{
+    width: 100vw;
+}
+
+.menu-item{
+    flex-grow: 0;    
+    font-size: 1.3em;
+    min-width: 10vw;
+    padding: 10px;    
+}
+
+.menu-item a:link { color: black; }
+.menu-item a:visted { color: black; }     
+
+.menu-item img {
+    display: block;
+}
+
+/**/
+
+#content{
+    height: 10%;
+}
+
+/* Si deseo trabajar con la opción de no recargar la página al elegir opción del menú
+que se encuentra en myjs.js
+*/
+/*#wndContent{
+    height: 100%;
+    width: 100vw;
+}*/
+
+/* --- Vistas ---- */
+
+.titulo {
+    margin-top:5px;    
+    color:#cb842e;
+    font-family:Tahoma,Verdana,Arial,Helvetica;
+    font-size:1.5em;
+    font-weight:bold;
+    text-transform:none;
+    margin-bottom: 10px;
+}
+
+#divBuscar {
+    margin-top:0px;
+    margin-bottom: 5px;
+}
+
+#divBotonera {
+    float: right;
+}
+
+/* Fin --- Vistas ---- */
+
+/* Formulario */
+.number {  /* Esta es clase del jquery validate */
+    text-align: right;
+}
+.digits {  /* Esta es clase del jquery validate */
+    text-align: right;
+}
+
+dt { height: 6px } /* Espacio entre objetos */
+dt label { width: 12em; float: left; margin-top: 8px; text-align: right; margin-right: 6px}
+.zend_form label.error, .zend_form input[type=submit], .zend_form button[type=button] { margin-left: 9em; /* 3 menos que width de dt label */ }
+#frmEditar .verimg { margin-left: 11em; /* 3 menos que width de dt label */ }
+
+/*---- jquery.validate -----*/
+label.error {display:block; color: red;}
+
+/* Mensaje de Error del Zend_form */
+.errors {display:block; color: red;}
+/* Fin ---- Formulario ---- */
+
+/* Para aplicar estilos personalizados a JqueryUI*/
+.ui-tabs .ui-tabs-nav li {
+    padding: .5em 1em;
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html><html>
+    <head>
+        <title>Gidoc</title>        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >        <meta name="viewport" content="width=device-width, initial-scale=1">        
+        
+        <link rel="stylesheet" href="/js/jquery/jquery-ui-1.12.0.custom/jquery-ui.css" type="text/css" media="screen">
+
+<link rel="stylesheet" href="/js/jquery/jqalert/jquery.alerts.css" type="text/css" media="screen">
+
+<script type="text/javascript" src="/js/jquery/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/js/jquery/jquery-ui-1.12.0.custom/jquery-ui.min.js"></script>
+
+   </head>
+    <body>
+            
+                    
+
+        <div id="content" >
+
+
+<div class="titulo">Reportes</div>
+    <ul id="divReportes">
+        <li><div>
+        <a id="menu-rptTiempoAtencion" title="Análisis por tiempo de atención" href="http://localhost/html/misreportes/gidoc/rptTiempoAtencion.php">Análisis por tiempo de atención</a>
+        </div>        
+    </li>
+    <li>
+        <a id="menu-rptPorAtender" title="Documentos por atender" href="http://localhost/html/misreportes/gidoc/rptPorAtender.php">Documentos por atender</a>
+    </li>
+    <li>
+        <a id="menu-rptAtendidos" title="Documentos atendidos/archivados" href="http://localhost/html/misreportes/gidoc/rptAtendidos.php">Documentos atendidos/archivados</a>
+    </li>
+    <li>
+        <a id="menu-rptRecibidos" title="Documentos recibidos" href="http://localhost/html/misreportes/gidoc/rptRecibidos.php">Documentos recibidos</a>
+    </li>
+</ul>    
+<script type="text/javascript">
+
+    $(function(){
+        
+        $( "#divReportes" ).menu();
+        
+    })
+
+</script>
+<div id="divFormReportes"></div>
+</div>
+        <div id="wndDialogo" ></div>
+
+    </body>
+</html>

@@ -1,0 +1,85 @@
+<?php $this->LoadFilesForm(array('ui.datepicker')); ?>
+<?php echo $this->form ?>
+
+<link href="/js/jquery/select2-3.5.4/select2.css" rel="stylesheet"/>
+<script src="/js/jquery/select2-3.5.4/select2.js"></script>
+
+<script type="text/javascript">
+
+    $().ready(function() {
+
+        /* Aplico select2 */
+        $("#dependenciadestino_id").select2({
+            width: '400px',
+            allowClear: true,
+        })
+        /* */
+
+        /* Para resaltar los input que son validados como requeridos.
+         * Son resaltados en base a una clase de jquery-ui para que
+         * se adapte el color a cualquier theme elegido.
+         * */
+        $.validator.setDefaults({
+                highlight: function(input) {
+                        $(input).addClass("ui-state-highlight");
+                },
+                unhighlight: function(input) {
+                        $(input).removeClass("ui-state-highlight");
+                }
+        });
+
+        $("#frmEditar").validate({
+            submitHandler: function(form) {
+                $(form).ajaxSubmit({
+                      beforeSubmit: validarForm, //funcion que se ejecuta antes de enviar el form
+                      success: recibeRespuesta //funcion que se ejecuta una vez enviado el formulario
+                });
+            }
+        })
+
+        /* Aplico estilo al botón guardar */
+        $(".btnGuardar").button();
+
+        /* Para Ajax */
+        $('#dependenciadestino_id').change(function() {
+            
+            var dependenciadestino_id = $(this).val();
+            var tipo_destino = dependenciadestino_id.substring(0, 3);
+            var id = dependenciadestino_id.substring(4);
+            
+            if(tipo_destino == 'ofi'){ /* Si se está derivando a una oficina */
+
+                $.ajax({
+                        type: "POST",
+                        url: "<?php echo $this->baseUrlController ?>/get-for-divusuario/",
+                        data: "dependenciadestino_id=" + id, 
+                        success: function(datos){
+                            /* Muestro el combo usuario */
+                            $('#divUsuario').html(datos)
+                            
+                            /* Hago que "Acciones" ya no sea requerido */
+                            $("#acciones").addClass("required");
+
+                        }
+                });            
+                
+            } else { /* Si se está derivando a un grupo */ 
+                
+                /* Oculto el combo usuario */
+                $('#divUsuario').html('');
+                
+                /* Hago que "Acciones" ya no sea requerido */
+                $("#acciones").removeClass("required");
+                
+            }
+            
+            
+        });
+        
+        $('#dependenciadestino_id').change(); /* Para que al modificar el registro se muestre el elemento con el dato correspondiente */
+
+        /* Fin Para Ajax */
+
+    });
+
+</script>

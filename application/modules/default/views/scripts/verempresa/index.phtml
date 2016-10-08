@@ -1,0 +1,18 @@
+<?php echo $this->doctype() ?>
+
+<html>
+    <head>
+        <?php echo $this->headTitle() ?>
+        <?php echo $this->headMeta() ?>
+    </head>
+    <body>
+            <?php echo $this->objEmpresa->getNombre();?>
+            <br>
+            <?php echo $this->objEmpresa->getDireccion();?>
+            <br>
+            <?php echo $this->objEmpresa->getTelefonos();?>
+            <br>
+            <img src="<?php echo $this->baseUrl . '/uploads/'.$this->objEmpresa->getImagen() ?>" width="50" height="50" />
+    </body>
+</html>
+

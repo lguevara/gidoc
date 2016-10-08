@@ -1,0 +1,98 @@
+<?php $this->LoadFilesForm(array('ui.datepicker')); ?>
+<?php echo $this->form ?>
+<div style="width: 100%;text-align: center" ><b>Asignación de permisos</b></div>
+<div class='ui-widget ui-widget-content ui-corner-all' id="divMenuPermisos">
+        <?php echo $this->navigation()->menu(); ?>
+</div>
+
+<script type="text/javascript">
+
+    $().ready(function() {
+        
+        /* Setfocus */
+
+        /* Para resaltar los input que son validados como requeridos.
+         * Son resaltados en base a una clase de jquery-ui para que
+         * se adapte el color a cualquier theme elegido.
+         * */
+        $.validator.setDefaults({
+                highlight: function(input) {
+                        $(input).addClass("ui-state-highlight");
+                },
+                unhighlight: function(input) {
+                        $(input).removeClass("ui-state-highlight");
+                }
+        });
+
+        $("#frmEditar").validate({
+            submitHandler: function(form) {
+                $(form).ajaxSubmit({
+                      beforeSubmit: validarForm, //funcion que se ejecuta antes de enviar el form
+                      success: recibeRespuesta //funcion que se ejecuta una vez enviado el formulario
+                });
+            }
+        })
+
+        /* Aplico estilo al botón guardar */
+        $("#guardar").button();
+
+//        $("#frmEditar").validate();
+
+        /* Si estamos editando y el usua_id del registro es diferente a la usua_id de session, oculto el botón guardar */
+        <?php if($this->usua_idregistro and $this->usua_idregistro <> $this->usua_idsession):  ?>        
+            $("#guardar").hide();
+        <?php endif;?>
+
+
+        /* Agrego los checks a cada menú */
+//        $('#divMenuPermisos li').prepend('<input class="cboxPermiso" type="checkbox">')
+
+        $('#divMenuPermisos li').each( function(){
+            var idRecurso = 'chk'+$(this).find('a').attr('id')
+            $(this).prepend('<input id="'+idRecurso+'" class="cboxPermiso" type="checkbox">')
+        });     
+
+        /*Elimino comportamiento por defecto de los link del menú del div de permisos */
+        $("#divMenuPermisos a").click(function(event) {
+            event.preventDefault();
+        }); 
+
+        /* Para cada click que se dé en los checks */
+        $('.cboxPermiso').change(function(){
+            
+            var idMenu = $(this).parent().find('a').attr('id') /* Obtengo el atributo id del link del menú */
+            var recurso = idMenu.substring(5)
+            var rol = $("#nombre").attr("value")
+            var check = $(this).is(":checked"); 
+            
+            $.ajax({
+                    type: "POST",
+                    url: "<?php echo $this->baseUrlController ?>/preparaarraypermisos/",
+                    data: "recurso="+recurso+"&rol="+rol+"&check="+check,
+                    success: function(datos){
+                        console.log(datos)
+                    }
+            });            
+
+        })
+
+        
+        /* activo los checks que ya están grabados */
+        var recursos = <?php echo $this->recursos; ?>
+        
+        jQuery.each(recursos, function(pos, item){  
+            // alert(item.recurso)
+            var idMenu = "menu-" + item.recurso
+//            aa = $('#'+idMenu).html()
+//            console.log(aa)
+            
+            $('#chk'+idMenu).attr("checked","checked");
+            
+            //$('#divMenuPermisos #'+idMenu).parent().find('input:checkbox').attr("checked","checked");
+            
+        });  
+
+
+    });
+
+</script>

@@ -1,0 +1,7 @@
+<?php foreach($this->menu as $itemMenu): ?>
+    <li>
+        <a href="<?php echo $this->baseUrl.$itemMenu->url; ?>">
+            <?php echo $itemMenu->etiqueta ?>
+        </a>
+    </li>
+<?php endforeach; ?>
